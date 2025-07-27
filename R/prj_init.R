@@ -56,10 +56,13 @@ rprj_init <- function(path = NULL, name = NULL, template = "base", open = FALSE)
   template_content <- load_template(template)
   
   # Replace placeholders in template
-  template_content <- glue::glue(template_content, 
-                                 project_name = name,
-                                 .open = "{{", 
-                                 .close = "}}")
+  # Join content, replace placeholders, then split again
+  template_text <- paste(template_content, collapse = "\n")
+  template_text <- glue::glue(template_text, 
+                              project_name = name,
+                              .open = "{{", 
+                              .close = "}}")
+  template_content <- strsplit(as.character(template_text), "\n")[[1]]
   
   # Create .Rproj file
   rproj_file <- fs::path(path, paste0(name, ".Rproj"))

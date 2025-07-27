@@ -43,9 +43,18 @@ command <- args[1]
 
 # Handle commands
 if (command == "setup") {
+  # Parse setup options
+  option_list <- list(
+    make_option(c("-e", "--examples"), action = "store_true", default = FALSE,
+                help = "Create example templates (shiny, package)")
+  )
+  
+  parser <- OptionParser(option_list = option_list, usage = "rprj setup [options]")
+  opts <- parse_args(parser, args = args[-1], positional_arguments = FALSE)
+  
   # Run setup
   tryCatch({
-    rprj_setup()
+    rprj_setup(create_examples = opts$examples)
   }, error = function(e) {
     cat("Error:", conditionMessage(e), "\n")
     quit(status = 1)

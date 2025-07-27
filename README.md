@@ -34,19 +34,26 @@ After installation, you need to set up banfa with an initial template:
 
 ```r
 # In R:
-rprj_setup()
+rprj_setup()  # Creates only base template
+rprj_setup(create_examples = TRUE)  # Creates base + example templates
 
 # Or from command line:
-rprj setup
+rprj setup                  # Creates only base template
+rprj setup --examples       # Creates base + example templates (shiny, package)
 ```
 
 ## Usage
 
 ### Command Line Interface (CLI)
 
+#### Setup and Initialization
+
 ```bash
-# First time setup
+# First time setup (creates base template only)
 rprj setup
+
+# Setup with example templates (shiny, package)
+rprj setup --examples
 
 # Create a project in current directory
 rprj init
@@ -55,43 +62,84 @@ rprj init
 rprj init my_project
 
 # Use a specific template
-rprj init my_app --template my_template
+rprj init my_app --template shiny
+rprj init my_app -t shiny  # short form
 
 # Create in specific directory
-rprj init --path ~/projects/new_project
+rprj init my_app --path ~/projects --template package
+rprj init my_app -p ~/projects -t package  # short form
 
-# Template management (CRUD operations)
-rprj list-templates                          # List all templates
-rprj add-template my_template --file existing.Rproj  # Create
-rprj edit-template my_template               # Read/Edit
-rprj delete-template my_template             # Delete
+# Open in RStudio after creation
+rprj init my_app --open
+rprj init my_app -o  # short form
+
+# All options combined
+rprj init my_awesome_app --template shiny --path ~/dev/R --open
+```
+
+#### Template Management (CRUD Operations)
+
+```bash
+# List all templates
+rprj list-templates
+
+# Add a custom template from existing .Rproj file
+rprj add-template my_template --file ~/existing_project/.Rproj
+rprj add-template my_template -f ~/existing_project/.Rproj  # short form
+
+# View/Edit template content
+rprj edit-template base      # shows content in terminal
+rprj edit-template shiny     # opens in editor if in RStudio
+
+# Delete a template
+rprj delete-template old_template
+rprj delete-template old_template --yes  # skip confirmation
+rprj delete-template old_template -y     # short form
 ```
 
 ### R Functions
 
-The main function is `rprj_init()` which creates a new R project with a `.Rproj` file:
+All CLI commands are also available as R functions with more flexibility:
 
 ```r
 library(banfa)
 
-# First time setup (creates base template)
-rprj_setup()
+# First time setup
+rprj_setup()                          # base template only
+rprj_setup(create_examples = TRUE)    # base + example templates (shiny, package)
 
-# Create a project in the current directory
-rprj_init()
+# Create projects
+rprj_init()                           # in current directory with base template
+rprj_init(name = "my_analysis")       # with specific name
+rprj_init(template = "shiny")         # with specific template
+rprj_init(path = "~/projects/app")    # in specific directory
+rprj_init(open = TRUE)                # open in RStudio after creation
 
-# Create a project with a specific name
-rprj_init(name = "my_analysis")
-
-# Create a project in a specific directory
-rprj_init(path = "~/projects/new_project", name = "awesome_project")
-
-# Use a different template
-rprj_init(template = "my_template")
+# Full example with all parameters
+rprj_init(
+  path = "~/dev/R/new_app",
+  name = "awesome_shiny_app", 
+  template = "shiny",
+  open = TRUE
+)
 
 # List available templates
 rprj_list_templates()
 ```
+
+### CLI vs R Function Comparison
+
+| Feature | CLI | R Function |
+|---------|-----|------------|
+| **Project name** | `rprj init myproject` | `rprj_init(name = "myproject")` |
+| **Template** | `--template shiny` or `-t shiny` | `template = "shiny"` |
+| **Path** | `--path ~/dev` or `-p ~/dev` | `path = "~/dev"` |
+| **Open in RStudio** | `--open` or `-o` | `open = TRUE` |
+| **Setup with examples** | `--examples` or `-e` | `create_examples = TRUE` |
+| **Skip confirmation** | `--yes` or `-y` | `confirm = FALSE` |
+| **Tab completion** | ❌ No | ✅ Yes (in RStudio) |
+| **Help** | `rprj --help` | `?rprj_init` |
+| **Interactive mode** | Limited | Full support |
 
 ## Template Management
 

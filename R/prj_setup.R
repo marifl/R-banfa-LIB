@@ -4,6 +4,7 @@
 #' This function should be run once after installing the package.
 #'
 #' @param verbose Logical. Should setup messages be displayed? Default is TRUE.
+#' @param create_examples Logical. Should example templates (shiny, package) be created? Default is FALSE.
 #'
 #' @return Invisibly returns TRUE if setup was successful.
 #'
@@ -11,10 +12,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Run after installing banfa
+#' # Run after installing banfa (base template only)
 #' rprj_setup()
+#' 
+#' # Create with example templates
+#' rprj_setup(create_examples = TRUE)
 #' }
-rprj_setup <- function(verbose = TRUE) {
+rprj_setup <- function(verbose = TRUE, create_examples = FALSE) {
   # Ensure user template directory exists
   template_dir <- get_user_template_dir()
   if (!fs::dir_exists(template_dir)) {
@@ -34,7 +38,7 @@ rprj_setup <- function(verbose = TRUE) {
     return(invisible(TRUE))
   }
   
-  # Create base template
+  # Create base template (matches RStudio defaults)
   base_content <- c(
     "Version: 1.0",
     "",
@@ -47,7 +51,7 @@ rprj_setup <- function(verbose = TRUE) {
     "NumSpacesForTab: 2",
     "Encoding: UTF-8",
     "",
-    "RnwWeave: Sweave",
+    "RnwWeave: knitr",
     "LaTeX: pdfLaTeX",
     "",
     "AutoAppendNewline: Yes",
@@ -58,6 +62,69 @@ rprj_setup <- function(verbose = TRUE) {
   
   if (verbose) {
     cli::cli_alert_success("Created base template: {.file {base_template}}")
+  }
+  
+  # Create example templates if requested
+  if (create_examples) {
+    # Shiny template
+    shiny_content <- c(
+      "Version: 1.0",
+      "",
+      "RestoreWorkspace: No",
+      "SaveWorkspace: No",
+      "AlwaysSaveHistory: No",
+      "",
+      "EnableCodeIndexing: Yes",
+      "UseSpacesForTab: Yes",
+      "NumSpacesForTab: 2",
+      "Encoding: UTF-8",
+      "",
+      "RnwWeave: knitr",
+      "LaTeX: pdfLaTeX",
+      "",
+      "AutoAppendNewline: Yes",
+      "StripTrailingWhitespace: Yes",
+      "",
+      "QuitChildProcessesOnExit: Yes"
+    )
+    shiny_template <- fs::path(template_dir, "shiny.Rproj")
+    writeLines(shiny_content, shiny_template)
+    if (verbose) {
+      cli::cli_alert_success("Created shiny template: {.file {shiny_template}}")
+    }
+    
+    # Package template
+    package_content <- c(
+      "Version: 1.0",
+      "",
+      "RestoreWorkspace: No",
+      "SaveWorkspace: No",
+      "AlwaysSaveHistory: Default",
+      "",
+      "EnableCodeIndexing: Yes",
+      "UseSpacesForTab: Yes",
+      "NumSpacesForTab: 2",
+      "Encoding: UTF-8",
+      "",
+      "RnwWeave: knitr",
+      "LaTeX: pdfLaTeX",
+      "",
+      "AutoAppendNewline: Yes",
+      "StripTrailingWhitespace: Yes",
+      "",
+      "BuildType: Package",
+      "PackageUseDevtools: Yes",
+      "PackageInstallArgs: --no-multiarch --with-keep.source",
+      "PackageRoxygenize: rd,collate,namespace,vignettes"
+    )
+    package_template <- fs::path(template_dir, "package.Rproj")
+    writeLines(package_content, package_template)
+    if (verbose) {
+      cli::cli_alert_success("Created package template: {.file {package_template}}")
+    }
+  }
+  
+  if (verbose) {
     cli::cli_alert_info("You can now use {.code rprj_init()} to create projects")
     cli::cli_alert_info("Add more templates with {.fn rprj_add_template}")
   }
