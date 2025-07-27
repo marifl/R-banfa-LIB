@@ -125,4 +125,8 @@ rprj_delete_template("old_template")
 
 MIT
 
+## contributions welcome
+
+This is my first "real" project and it is mainly ai generated. So - if you find any bugs or have any suggestions, please let me know.
+
 Made with 🤖 claude & ganz viel Verzweiflung.
