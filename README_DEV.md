@@ -445,8 +445,13 @@ devtools::check()
 # Spell check
 devtools::spell_check()
 
-# Check on different platforms
-rhub::check_for_cran()
+# Check on Windows
+devtools::check_win_devel()
+
+# For additional platform checks:
+# Option 1: Use GitHub Actions (already configured in .github/workflows/)
+# Option 2: Use the new rhub (requires GitHub): rhub::rhub_check()
+# Option 3: Manual submission to win-builder.r-project.org
 ```
 
 2. **Update documentation**:
@@ -483,7 +488,14 @@ git status  # Should be clean
 # 2. Run full check suite
 devtools::check()                    # Must pass with 0 errors, 0 warnings
 devtools::check_win_devel()          # Windows check
-rhub::check_for_cran()               # Multi-platform check
+
+# For multi-platform checks (rhub v2 uses GitHub Actions):
+# Option 1: Use rhub with GitHub
+rhub::rhub_check()                   # Requires GitHub repo
+
+# Option 2: Use R-universe
+# Submit your package to win-builder manually:
+# https://win-builder.r-project.org/
 
 # 3. Update version
 usethis::use_version("patch")        # 0.1.0 -> 0.1.1

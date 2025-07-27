@@ -4,9 +4,8 @@ Title: Simple R Project Creation and Management
 Version: 0.1.0
 Authors@R: 
     person("Marcus", "Ifland", 
-           email = "your.email@example.com", 
-           role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "deine.echte.email@domain.com", 
+           role = c("aut", "cre"))
 Description: A simple package for creating R projects with custom templates.
     The main function rprj_init() creates .Rproj files with user-defined templates,
     making it easy to start new R projects with your preferred configurations.
