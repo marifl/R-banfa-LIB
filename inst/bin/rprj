@@ -1,0 +1,184 @@
+#!/usr/bin/env Rscript
+
+# CLI for banfa package
+# Usage: rprj <command> [arguments]
+
+suppressPackageStartupMessages({
+  if (!requireNamespace("banfa", quietly = TRUE)) {
+    cat("Error: Package 'banfa' is not installed.\n")
+    cat("Please install it with: install.packages('banfa')\n")
+    quit(status = 1)
+  }
+  
+  if (!requireNamespace("optparse", quietly = TRUE)) {
+    cat("Installing required package 'optparse'...\n")
+    install.packages("optparse", repos = "https://cloud.r-project.org", quiet = TRUE)
+  }
+  
+  library(optparse)
+  library(banfa)
+})
+
+# Get command line arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+# Show help if no arguments
+if (length(args) == 0) {
+  cat("Usage: rprj <command> [arguments]\n\n")
+  cat("Commands:\n")
+  cat("  setup                 Set up banfa with initial template\n")
+  cat("  init [name]           Create a new R project\n")
+  cat("  list-templates        List available project templates\n")
+  cat("  add-template <name>   Add a custom template\n")
+  cat("  edit-template <name>  Edit an existing template\n")
+  cat("  delete-template <name> Delete a template\n")
+  cat("\nOptions for init:\n")
+  cat("  --template <name>     Use a specific template (default: 'base')\n")
+  cat("  --path <path>         Create project in specific directory\n")
+  cat("  --open                Open project in RStudio after creation\n")
+  quit(status = 0)
+}
+
+command <- args[1]
+
+# Handle commands
+if (command == "setup") {
+  # Run setup
+  tryCatch({
+    rprj_setup()
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    quit(status = 1)
+  })
+  
+} else if (command == "init") {
+  # Parse init options
+  option_list <- list(
+    make_option(c("-t", "--template"), type = "character", default = "base",
+                help = "Template to use [default: %default]"),
+    make_option(c("-p", "--path"), type = "character", default = NULL,
+                help = "Path where project should be created"),
+    make_option(c("-o", "--open"), action = "store_true", default = FALSE,
+                help = "Open project in RStudio after creation")
+  )
+  
+  # Remove 'init' from args before parsing
+  init_args <- args[-1]
+  
+  # Separate positional arguments from options
+  name <- NULL
+  opt_args <- character()
+  
+  for (i in seq_along(init_args)) {
+    if (startsWith(init_args[i], "-")) {
+      opt_args <- init_args[i:length(init_args)]
+      break
+    } else if (is.null(name)) {
+      name <- init_args[i]
+    }
+  }
+  
+  # Parse options
+  parser <- OptionParser(option_list = option_list, usage = "rprj init [name] [options]")
+  opts <- parse_args(parser, args = opt_args, positional_arguments = FALSE)
+  
+  # Call rprj_init
+  tryCatch({
+    rprj_init(
+      path = opts$path,
+      name = name,
+      template = opts$template,
+      open = opts$open
+    )
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    quit(status = 1)
+  })
+  
+} else if (command == "list-templates") {
+  # List available templates
+  templates <- rprj_list_templates()
+  if (length(templates) > 0) {
+    cat("Available templates:\n")
+    for (tmpl in templates) {
+      cat("  -", tmpl, "\n")
+    }
+  }
+  
+} else if (command == "add-template") {
+  # Check if template name provided
+  if (length(args) < 2) {
+    cat("Error: Please provide a template name\n")
+    cat("Usage: rprj add-template <name> [--file <path>]\n")
+    quit(status = 1)
+  }
+  
+  template_name <- args[2]
+  
+  # Parse options for add-template
+  option_list <- list(
+    make_option(c("-f", "--file"), type = "character", default = NULL,
+                help = "Path to existing .Rproj file to use as template")
+  )
+  
+  parser <- OptionParser(option_list = option_list)
+  opts <- parse_args(parser, args = args[-(1:2)], positional_arguments = FALSE)
+  
+  # Call rprj_add_template
+  tryCatch({
+    rprj_add_template(name = template_name, file = opts$file)
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    quit(status = 1)
+  })
+  
+} else if (command == "edit-template") {
+  # Check if template name provided
+  if (length(args) < 2) {
+    cat("Error: Please provide a template name\n")
+    cat("Usage: rprj edit-template <name>\n")
+    quit(status = 1)
+  }
+  
+  template_name <- args[2]
+  
+  # Call rprj_edit_template
+  tryCatch({
+    rprj_edit_template(name = template_name, edit = interactive())
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    quit(status = 1)
+  })
+  
+} else if (command == "delete-template") {
+  # Check if template name provided
+  if (length(args) < 2) {
+    cat("Error: Please provide a template name\n")
+    cat("Usage: rprj delete-template <name>\n")
+    quit(status = 1)
+  }
+  
+  template_name <- args[2]
+  
+  # Parse options for delete-template
+  option_list <- list(
+    make_option(c("-y", "--yes"), action = "store_true", default = FALSE,
+                help = "Skip confirmation prompt")
+  )
+  
+  parser <- OptionParser(option_list = option_list)
+  opts <- parse_args(parser, args = args[-(1:2)], positional_arguments = FALSE)
+  
+  # Call rprj_delete_template
+  tryCatch({
+    rprj_delete_template(name = template_name, confirm = !opts$yes)
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    quit(status = 1)
+  })
+  
+} else {
+  cat("Error: Unknown command '", command, "'\n", sep = "")
+  cat("Run 'rprj' without arguments to see available commands.\n")
+  quit(status = 1)
+}

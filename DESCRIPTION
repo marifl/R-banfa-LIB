@@ -1,0 +1,34 @@
+Package: banfa
+Type: Package
+Title: Simple R Project Creation and Management
+Version: 0.1.0
+Authors@R: 
+    person("Marcus", "Ifland", 
+           email = "your.email@example.com", 
+           role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: A simple package for creating R projects with custom templates.
+    The main function rprj_init() creates .Rproj files with user-defined templates,
+    making it easy to start new R projects with your preferred configurations.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5.0)
+Imports:
+    cli (>= 3.0.0),
+    fs (>= 1.5.0),
+    glue (>= 1.4.0),
+    rappdirs (>= 0.3.0),
+    rlang (>= 0.4.0)
+Suggests: 
+    optparse,
+    rstudioapi,
+    testthat (>= 3.0.0),
+    spelling
+Config/testthat/edition: 3
+Language: en-US
+URL: https://github.com/yourusername/banfa
+BugReports: https://github.com/yourusername/banfa/issues
+
